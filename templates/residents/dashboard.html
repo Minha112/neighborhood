@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Resident{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Resident Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'create_request' %}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus me-1"></i> New Service Request
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Welcome, {{ user.username }}</h5>
+                <p class="card-text">Flat: {{ user.flat_level.name|default:"Not Assigned" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Recent Service Requests</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Worker</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr>
+                        <td>{{ req.created_at|date:"d M Y" }}</td>
+                        <td>{{ req.category }}</td>
+                        <td>
+                            <span
+                                class="badge {% if req.priority == 'URGENT' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                {{ req.priority }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ req.status|lower }}">
+                                {{ req.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if req.status == 'ACCEPTED' or req.status == 'COMPLETED' %}
+                            {{ req.booking.worker.username }}
+                            {% else %}
+                            <small class="text-muted">Awaiting Professional</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if req.status == 'ACCEPTED' and not req.booking.payment.is_confirmed %}
+                            <a href="{% url 'dummy_payment' req.booking.id %}" class="btn btn-sm btn-warning">Pay
+                                Now</a>
+                            {% elif req.status == 'COMPLETED' and not req.booking.feedback %}
+                            <a href="{% url 'submit_feedback' req.booking.id %}" class="btn btn-sm btn-success">Rate
+                                Service</a>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">No service requests found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

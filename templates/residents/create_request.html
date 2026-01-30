@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}New Request - Resident{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card p-4">
+            <h3 class="mb-4 text-center">Submit Household Service Request</h3>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Service Category</label>
+                    <select name="category" class="form-select" required>
+                        <option value="">Choose Service...</option>
+                        {% for val, label in categories %}
+                        <option value="{{ val }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label d-block">Priority</label>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="priority" id="normal" value="NORMAL" checked>
+                        <label class="form-check-label" for="normal">Normal</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="priority" id="urgent" value="URGENT">
+                        <label class="form-check-label" for="urgent">Urgent</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description of the Issue</label>
+                    <textarea name="description" class="form-control" rows="5"
+                        placeholder="Please describe the problem in detail..." required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Optional Requirements / Extra Details</label>
+                    <textarea name="requirements" class="form-control" rows="3"
+                        placeholder="Any additional needs? (e.g. tools required, preferred time...)"></textarea>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Submit Request</button>
+                    <a href="{% url 'resident_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

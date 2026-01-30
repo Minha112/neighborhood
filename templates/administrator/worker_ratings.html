@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Worker Ratings & Feedback - Admin{% endblock %}
+
+{% block content %}
+<div class="pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Worker Ratings & Feedback</h1>
+</div>
+
+<!-- Stats Section -->
+<div class="row mb-4">
+    {% for worker_stat in worker_ratings_list %}
+    <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="card-title">{{ worker_stat.worker.username }}</h6>
+                <p class="card-text text-muted small">{{ worker_stat.worker.worker_profile.service_type }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="rating">
+                            {% with rating=worker_stat.average_rating %}
+                                {% if rating > 0 %}
+                                    <span class="text-warning">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= rating %}
+                                                <i class="fas fa-star"></i>
+                                            {% elif forloop.counter|add:"-0.5" <= rating %}
+                                                <i class="fas fa-star-half-alt"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                    <span class="ms-2 fw-bold">{{ rating|floatformat:1 }}/5</span>
+                                {% else %}
+                                    <span class="text-muted">No ratings yet</span>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                        <small class="text-muted">({{ worker_stat.feedback_count }} reviews)</small>
+                    </div>
+                    <a href="?worker_id={{ worker_stat.worker.id }}" class="btn btn-sm btn-outline-primary">View</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="text-muted">No workers with ratings yet.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Filter Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Filter Feedbacks</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <label for="worker_id" class="form-label">Filter by Worker</label>
+                <select name="worker_id" class="form-select" id="worker_id">
+                    <option value="">-- All Workers --</option>
+                    {% for worker in workers %}
+                    <option value="{{ worker.id }}" {% if selected_worker_id|stringformat:"s" == worker.id|stringformat:"s" %}selected{% endif %}>
+                        {{ worker.username }} ({{ worker.worker_profile.service_type }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+        {% if selected_worker_id %}
+        <div class="mt-2">
+            <a href="{% url 'worker_ratings' %}" class="btn btn-secondary btn-sm">Clear Filter</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Feedbacks Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">All Feedbacks ({{ feedbacks|length }})</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Worker</th>
+                        <th>Service Type</th>
+                        <th>Resident</th>
+                        <th>Rating</th>
+                        <th>Feedback</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feedback in feedbacks %}
+                    <tr>
+                        <td>
+                            <strong>{{ feedback.booking.worker.username }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ feedback.booking.service_request.category }}</span>
+                        </td>
+                        <td>
+                            {{ feedback.booking.service_request.resident.username }}
+                        </td>
+                        <td>
+                            <div class="rating text-warning">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= feedback.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ms-2 fw-bold">{{ feedback.rating }}/5</span>
+                            </div>
+                        </td>
+                        <td>
+                            <small>{{ feedback.comment|truncatewords:10 }}</small>
+                        </td>
+                        <td>
+                            <small>{{ feedback.created_at|date:"M d, Y" }}</small>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            No feedbacks found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rating {
+        font-size: 14px;
+    }
+</style>
+{% endblock %}

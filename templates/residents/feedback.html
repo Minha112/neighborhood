@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Feedback - Neighborhood Help{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center pt-5">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white text-center py-3">
+                <h4 class="mb-0">Rate the Service</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-4 text-center">
+                        <label class="form-label d-block h5">How was your experience with {{ booking.worker.username }}?</label>
+                        <div class="d-flex justify-content-center mt-3">
+                            <select name="rating" class="form-select w-50" required>
+                                <option value="">Select Rating...</option>
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very Good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Additional Comments</label>
+                        <textarea name="comment" class="form-control" rows="4"
+                            placeholder="Will you recommend this worker? Any issues?" required></textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg">Submit Feedback</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

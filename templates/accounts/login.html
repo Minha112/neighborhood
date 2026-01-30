@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Neighborhood Assistance Portal{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <!-- Hero Section (Left Side) -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Neighborhood Assistance Portal</h1>
+            <p class="hero-subtitle">
+                A community-based platform that connects residents<br>
+                to trusted local service professionals.
+            </p>
+        </div>
+    </div>
+
+    <!-- Login Box (Right Side) -->
+    <div class="login-card-section">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Welcome Back</h2>
+                <p>Please sign in to your account</p>
+            </div>
+
+            <!-- Messages Section -->
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4 small" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <!-- Username Field -->
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="Enter your username" required>
+                </div>
+                
+                <!-- Password Field -->
+                <div class="mb-4">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                
+                <!-- Login Button -->
+                <button type="submit" class="btn-login shadow-sm">
+                    Login
+                </button>
+            </form>
+            
+            <div class="divider">or</div>
+            
+            <div class="registration-section">
+                <p>Don't have an account?</p>
+                <a href="{% url 'register_resident' %}" class="btn-register">
+                    Register as Resident
+                </a>
+                <a href="{% url 'register_worker' %}" class="btn-register">
+                    Register as Worker
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add specifically to the body for this page
+    document.body.classList.add('login-page');
+</script>
+{% endblock %}

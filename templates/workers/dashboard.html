@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Worker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Worker Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <form action="{% url 'toggle_availability' %}" method="post" class="me-2">
+            {% csrf_token %}
+            <button type="submit"
+                class="btn btn-sm {% if profile.is_available %}btn-success{% else %}btn-secondary{% endif %}">
+                <i class="fas fa-power-off me-1"></i>
+                Status: {% if profile.is_available %}Available{% else %}Unavailable{% endif %}
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Active Tasks -->
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Assigned Tasks</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Resident</th>
+                                <th>Category</th>
+                                <th>Priority</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in assigned_jobs %}
+                            <tr>
+                                <td>{{ booking.service_request.resident.username }} ({{ booking.service_request.resident.flat_level }})</td>
+                                <td>{{ booking.service_request.category }}</td>
+                                <td>
+                                    <span
+                                        class="badge {% if booking.service_request.priority == 'URGENT' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                        {{ booking.service_request.priority }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <small>{{ booking.service_request.description|truncatewords:5 }}</small>
+                                    <a href="#" class="ms-1 small" data-bs-toggle="modal"
+                                        data-bs-target="#detailsModal{{ booking.id }}">View Details</a>
+
+                                    <!-- Details Modal -->
+                                    <div class="modal fade" id="detailsModal{{ booking.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content text-dark">
+                                                <div class="modal-header bg-light">
+                                                    <h5 class="modal-title">Request Details</h5>
+                                                    <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label
+                                                            class="fw-bold d-block small text-muted text-uppercase">Resident</label>
+                                                        <span>{{ booking.service_request.resident.username }} ({{ booking.service_request.resident.flat_level }})</span>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label
+                                                            class="fw-bold d-block small text-muted text-uppercase">Service
+                                                            Category</label>
+                                                        <span>{{ booking.service_request.category }}</span>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label
+                                                            class="fw-bold d-block small text-muted text-uppercase">Description</label>
+                                                        <p class="mb-0">{{ booking.service_request.description }}</p>
+                                                    </div>
+                                                    {% if booking.service_request.requirements %}
+                                                    <div class="mb-0 p-3 bg-light border-start border-4 border-info">
+                                                        <label
+                                                            class="fw-bold d-block small text-muted text-uppercase">Special
+                                                            Requirements</label>
+                                                        <p class="mb-0">{{ booking.service_request.requirements }}</p>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ booking.service_request.status|lower }}">
+                                        {{ booking.service_request.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if booking.service_request.status == 'ASSIGNED' %}
+                                    <a href="{% url 'handle_task' booking.id 'accept' %}"
+                                        class="btn btn-sm btn-outline-success">Accept</a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                        data-bs-target="#rejectModal{{ booking.id }}">Reject</button>
+
+                                    <!-- Reject Modal -->
+                                    <div class="modal fade" id="rejectModal{{ booking.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <form action="{% url 'handle_task' booking.id 'reject' %}"
+                                                    method="post">
+                                                    {% csrf_token %}
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Reason for Rejection</h5>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body text-start">
+                                                        <textarea name="reason" class="form-control" rows="3"
+                                                            placeholder="Explain why you are rejecting this task..."
+                                                            required></textarea>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                        <button type="submit" class="btn btn-danger">Submit
+                                                            Rejection</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% elif booking.service_request.status == 'ACCEPTED' %}
+                                    {% if booking.payment.is_confirmed %}
+                                    <a href="{% url 'handle_task' booking.id 'complete' %}"
+                                        class="btn btn-sm btn-success">Mark Completed</a>
+                                    {% else %}
+                                    <small class="text-warning">Awaiting Payment</small>
+                                    {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">No pending tasks.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Summary -->
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Average Rating</h5>
+            </div>
+            <div class="card-body text-center">
+                <h1 class="display-4">{{ profile.average_rating|floatformat:1 }} / 5.0</h1>
+                <p class="text-muted">Based on your performance in completed jobs.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Feedback -->
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-star me-2"></i>Recent Work Feedback</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for job in recent_completed %}
+                    {% if job.feedback %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1 text-primary">{{ job.service_request.category }}</h6>
+                            <span class="badge bg-success">{{ job.feedback.rating }} ★</span>
+                        </div>
+                        <p class="mb-1 small">"{{ job.feedback.comment|default:"No comment provided." }}"</p>
+                        <small class="text-muted">- {{ job.service_request.resident.username }}, {{ job.service_request.updated_at|date:"d M Y" }}</small>
+                    </div>
+                    {% endif %}
+                    {% empty %}
+                    <div class="p-4 text-center text-muted">No feedback received yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Job History Section -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Your Full Job History</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Resident</th>
+                                <th>Status</th>
+                                <th>Performance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for job in all_jobs %}
+                            <tr>
+                                <td><small>{{ job.assigned_at|date:"d M Y" }}</small></td>
+                                <td>{{ job.service_request.category }}</td>
+                                <td>{{ job.service_request.resident.username }}</td>
+                                <td>
+                                    <span class="badge badge-{{ job.service_request.status|lower }}">
+                                        {{ job.service_request.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if job.service_request.status == 'COMPLETED' %}
+                                    {% if job.feedback %}
+                                    <span class="text-success">{{ job.feedback.rating }} ★</span>
+                                    {% else %}
+                                    <span class="text-muted small">Pending Review</span>
+                                    {% endif %}
+                                    {% elif job.service_request.status == 'REJECTED' %}
+                                    <small class="text-danger" title="{{ job.rejection_reason }}">Rejected</small>
+                                    {% else %}
+                                    <small class="text-muted">-</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">No historical records found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

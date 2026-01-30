@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Flats - Admin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card p-4 shadow-sm">
+            <h5>Add New Flat Level</h5>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Flat Name (e.g., 2B)</label>
+                    <input type="text" name="name" class="form-control" placeholder="1A, 4C..." required>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Flat</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0">Existing Flat Levels</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for flat in flats %}
+                    <div class="col-md-3 mb-2">
+                        <div class="p-2 border rounded text-center bg-light">
+                            <strong>{{ flat.name }}</strong>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 py-4 text-center text-muted">No flats defined.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

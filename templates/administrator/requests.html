@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Service Requests - Admin{% endblock %}
+
+{% block content %}
+<div class="pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Manage Service Requests</h1>
+</div>
+
+<div class="card shadow-sm mb-5">
+    <div class="card-header bg-dark text-white d-flex justify-content-between">
+        <h5 class="mb-0">All Requests</h5>
+        <small>Sorted by Priority (Urgent First)</small>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Resident</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assignment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in all_requests %}
+                    <tr>
+                        <td>{{ req.created_at|date:"d M" }}</td>
+                        <td>{{ req.resident.username }} ({{ req.resident.flat_level }})</td>
+                        <td>{{ req.category }}</td>
+                        <td>
+                            {% if req.priority == 'URGENT' %}
+                            <span class="badge bg-danger">{{ req.priority }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ req.priority }}</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge badge-{{ req.status|lower }}">{{ req.status }}</span></td>
+                        <td>
+                            {% if req.status == 'PENDING' or req.status == 'REJECTED' %}
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#assignModal{{ req.id }}">
+                                Assign Worker
+                            </button>
+
+                            <div class="modal fade" id="assignModal{{ req.id }}" tabindex="-1">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="request_id" value="{{ req.id }}">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Assign Worker for {{ req.category }}</h5>
+                                                <button type="button" class="btn-close"
+                                                    data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body text-start">
+                                                <p>Selected Request: <strong>{{ req.description }}</strong></p>
+                                                {% if req.requirements %}
+                                                <p class="text-info"><i class="fas fa-info-circle me-1"></i> Special
+                                                    Requirements: <strong>{{ req.requirements }}</strong></p>
+                                                {% endif %}
+                                                <hr>
+                                                <h6>Suggested Workers (Highest Rated First)</h6>
+                                                <div class="list-group">
+                                                    {% for w in req.suggested_workers %}
+                                                    <label
+                                                        class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <input class="form-check-input me-3" type="radio"
+                                                                name="worker_id" value="{{ w.user.id }}" required>
+                                                            <strong>{{ w.user.username }}</strong>
+                                                            <span class="text-muted small ms-2">({{ w.service_type }})</span>
+                                                        </div>
+                                                        <span class="badge bg-success rounded-pill">{{ w.average_rating|floatformat:1 }} ★</span>
+                                                    </label>
+                                                    {% empty %}
+                                                    <div class="text-center py-3 text-muted">No available workers for
+                                                        this category.</div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                {% if req.suggested_workers %}
+                                                <button type="submit" class="btn btn-primary">Confirm
+                                                    Assignment</button>
+                                                {% else %}
+                                                <button type="submit" class="btn btn-primary" disabled>Confirm
+                                                    Assignment</button>
+                                                {% endif %}
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% elif req.booking %}
+                            <span class="badge bg-light text-dark shadow-sm">
+                                <i class="fas fa-user-tie me-1"></i> {{ req.booking.worker.username }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">No requests found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

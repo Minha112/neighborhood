@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - Worker{% endblock %}
+
+{% block content %}
+<div class="pt-3 pb-2 mb-4 border-bottom">
+    <h1 class="h2 fw-bold">Professional Profile</h1>
+    <p class="text-muted">Manage and update your professional information</p>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Profile Information -->
+    <div class="col-lg-5">
+        <!-- Professional Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="avatar-circle mx-auto mb-3" style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold;">
+                        {{ user.first_name|first|upper }}
+                    </div>
+                    <h4 class="mb-1 fw-bold">{{ user.first_name }} {{ user.last_name }}</h4>
+                    <p class="text-muted mb-3">{{ profile.service_type }}</p>
+                </div>
+                
+                <hr class="my-4">
+                
+                <!-- Contact Information -->
+                <div class="info-section">
+                    <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.85rem; letter-spacing: 0.5px;">Contact Information</h6>
+                    
+                    <div class="mb-3">
+                        <label class="small text-muted d-block mb-1">
+                            <i class="fas fa-envelope me-2"></i>Email
+                        </label>
+                        <p class="mb-0 fw-500">{{ user.email }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="small text-muted d-block mb-1">
+                            <i class="fas fa-phone me-2"></i>Phone
+                        </label>
+                        <p class="mb-0 fw-500">{{ user.phone_number }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="small text-muted d-block mb-1">
+                            <i class="fas fa-tools me-2"></i>Specialization
+                        </label>
+                        <p class="mb-0">
+                            <span class="badge bg-info text-dark">{{ profile.service_type }}</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <!-- Availability Status -->
+                <div class="info-section">
+                    <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.85rem; letter-spacing: 0.5px;">Status</h6>
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="mb-1 small text-muted">Current Availability</p>
+                            <p class="mb-0 fw-bold">
+                                {% if profile.is_available %}
+                                    <span class="badge bg-success">Available</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Unavailable</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Update Form & Feedback -->
+    <div class="col-lg-7">
+        <!-- Update Details Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-edit me-2 text-primary"></i>Update Professional Bio
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="bio" class="form-label fw-bold">Professional Bio</label>
+                        <textarea name="bio" id="bio" class="form-control" rows="6" placeholder="Share your professional experience, certifications, and specialties...">{{ profile.bio }}</textarea>
+                        <small class="text-muted d-block mt-2">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Write a compelling bio to attract more clients
+                        </small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Recent Feedback Card -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-star me-2 text-warning"></i>Recent Feedback
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if feedbacks %}
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        {% for feedback in feedbacks %}
+                        <div class="feedback-item pb-3 mb-3 border-bottom" style="{% if forloop.last %}border-bottom: none !important;{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ feedback.booking.service_request.resident.first_name }} {{ feedback.booking.service_request.resident.last_name }}</h6>
+                                    <small class="text-muted">{{ feedback.created_at|date:"M d, Y" }}</small>
+                                </div>
+                                <div class="text-warning">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= feedback.rating %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <p class="mb-0 text-muted small">
+                                <i class="fas fa-quote-left me-2" style="opacity: 0.5;"></i>{{ feedback.comment }}
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-star" style="font-size: 3rem; opacity: 0.2; margin-bottom: 1rem;"></i>
+                        <p class="text-muted mb-0">No reviews yet. Complete more jobs to get feedback!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .info-section {
+        padding: 0;
+    }
+    
+    .feedback-item {
+        transition: all 0.3s ease;
+    }
+    
+    .feedback-item:hover {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        margin: -10px -10px 10px -10px;
+    }
+    
+    .card {
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .form-control, .form-select {
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1.5rem rgba(102, 126, 234, 0.4);
+    }
+    
+    .badge {
+        padding: 0.4rem 0.8rem;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}

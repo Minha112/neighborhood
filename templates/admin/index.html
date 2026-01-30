@@ -1,0 +1,8 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+<div style="text-align:right; margin-bottom: 12px;">
+  <a class="button" href="{% url 'logout' %}">Logout</a>
+</div>
+{{ block.super }}
+{% endblock %}

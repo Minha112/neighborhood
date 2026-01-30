@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Neighborhood Help{% endblock %}
+
+{% block content %}
+<div class="pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Admin Control Panel</h1>
+</div>
+
+<!-- Stats Row -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white p-3">
+            <h3>{{ total_users }}</h3>
+            <p class="mb-0">Residential Users</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark p-3">
+            <h3>{{ pending_workers }}</h3>
+            <p class="mb-0">Worker Approvals</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white p-3">
+            <h3>{{ active_requests }}</h3>
+            <p class="mb-0">Active Requests</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white p-3">
+            <h3>{{ completed_requests }}</h3>
+            <p class="mb-0">Completed Jobs</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Recent Activity</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Resident</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Worker</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in recent_requests %}
+                    <tr>
+                        <td>{{ req.resident.username }}</td>
+                        <td>{{ req.category }}</td>
+                        <td>
+                            <span
+                                class="badge {% if req.priority == 'URGENT' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                {{ req.priority }}
+                            </span>
+                        </td>
+                        <td><span class="badge badge-{{ req.status|lower }}">{{ req.status }}</span></td>
+                        <td>
+                            {% if req.booking %}
+                            {{ req.booking.worker.username }}
+                            {% else %}
+                            <span class="text-muted">Unassigned</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No recent activity.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

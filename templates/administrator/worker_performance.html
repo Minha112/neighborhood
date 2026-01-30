@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Worker Performance - Admin{% endblock %}
+
+{% block content %}
+<div class="pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Worker Performance Monitoring</h1>
+</div>
+
+<!-- Filter Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Filter by Service Type</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <label for="service_type" class="form-label">Service Type</label>
+                <select name="service_type" class="form-select" id="service_type">
+                    <option value="">-- All Service Types --</option>
+                    {% for service_type in service_types %}
+                    <option value="{{ service_type }}" {% if selected_service_type == service_type %}selected{% endif %}>
+                        {{ service_type }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+        {% if selected_service_type %}
+        <div class="mt-2">
+            <a href="{% url 'worker_performance' %}" class="btn btn-secondary btn-sm">Clear Filter</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Performance Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Worker Performance Statistics ({{ worker_stats|length }})</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Worker</th>
+                        <th>Service Type</th>
+                        <th>Average Rating</th>
+                        <th>Reviews</th>
+                        <th>Completed</th>
+                        <th>Rejected</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in worker_stats %}
+                    <tr>
+                        <td>
+                            <strong>{{ stat.worker.username }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ stat.profile.service_type }}</span>
+                        </td>
+                        <td>
+                            <div class="rating text-warning">
+                                {% if stat.average_rating > 0 %}
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= stat.average_rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif forloop.counter|add:"-0.5" <= stat.average_rating %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ms-2 fw-bold">{{ stat.average_rating|floatformat:1 }}/5</span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ stat.feedback_count }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-success">{{ stat.completed_jobs }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-danger">{{ stat.rejected_jobs }}</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            {% if selected_service_type %}
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i> <strong>No workers available</strong> for {{ selected_service_type }}
+                            </div>
+                            {% else %}
+                            <span class="text-muted">No workers found.</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Summary -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Total Workers</h6>
+                <h3>{{ worker_stats|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Avg Rating (All)</h6>
+                <h3>
+                    {% with total_rating=worker_stats|dictsort:"average_rating"|last|default:0 %}
+                        {% if worker_stats %}
+                            {{ total_rating.average_rating|floatformat:1 }}/5
+                        {% else %}
+                            —
+                        {% endif %}
+                    {% endwith %}
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rating {
+        font-size: 14px;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+</style>
+{% endblock %}

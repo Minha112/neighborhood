@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}View Residents - Admin{% endblock %}
+
+{% block content %}
+<div class="pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Registered Residents</h1>
+</div>
+
+<!-- Search and Filter Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Search & Filter Residents</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                <label for="search" class="form-label">Search (Name, Email, Phone)</label>
+                <input type="text" name="search" class="form-control" id="search" placeholder="Search residents..." value="{{ search_query|default:'' }}">
+            </div>
+            <div class="col-md-5">
+                <label for="flat_level" class="form-label">Filter by Flat Level</label>
+                <select name="flat_level" class="form-select" id="flat_level">
+                    <option value="">-- All Flats --</option>
+                    {% for flat in flat_levels %}
+                    <option value="{{ flat.id }}" {% if selected_flat|stringformat:"s" == flat.id|stringformat:"s" %}selected{% endif %}>
+                        {{ flat.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </form>
+        {% if search_query or selected_flat %}
+        <div class="mt-2">
+            <a href="{% url 'view_residents' %}" class="btn btn-secondary btn-sm">Clear Filters</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Residents Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Residents List ({{ residents|length }})</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Flat Level</th>
+                        <th>Member Since</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resident in residents %}
+                    <tr>
+                        <td>
+                            <strong>{{ resident.username }}</strong>
+                        </td>
+                        <td>
+                            {{ resident.first_name }} {{ resident.last_name }}
+                        </td>
+                        <td>
+                            {{ resident.email|default:"—" }}
+                        </td>
+                        <td>
+                            {{ resident.phone_number|default:"—" }}
+                        </td>
+                        <td>
+                            {% if resident.flat_level %}
+                            <span class="badge bg-info">{{ resident.flat_level.name }}</span>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small>{{ resident.date_joined|date:"M d, Y" }}</small>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            No residents found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
