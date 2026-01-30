@@ -66,20 +66,16 @@ def toggle_availability(request):
 
 @login_required
 def worker_profile(request):
+    """View worker profile - view only"""
     if request.user.role != 'WORKER':
         return redirect('dashboard_redirect')
         
     profile = request.user.worker_profile
     feedbacks = Feedback.objects.filter(booking__worker=request.user)
-    
-    if request.method == 'POST':
-        profile.service_type = request.POST.get('service_type')
-        profile.bio = request.POST.get('bio')
-        profile.save()
-        messages.success(request, "Profile updated successfully.")
-        return redirect('worker_profile')
         
     return render(request, 'workers/profile.html', {
         'profile': profile,
         'feedbacks': feedbacks
     })
+
+
