@@ -158,9 +158,7 @@
                         <a href="{% url 'create_request' %}" class="nav-link">
                             <i class="fas fa-plus-circle me-2"></i> New Request
                         </a>
-                        <a href="{% url 'resident_history' %}" class="nav-link">
-                            <i class="fas fa-history me-2"></i> Request History
-                        </a>
+
                         {% endif %}
 
                         {% if user.role == 'WORKER' %}

@@ -40,7 +40,7 @@
                         <tbody>
                             {% for booking in assigned_jobs %}
                             <tr>
-                                <td>{{ booking.service_request.resident.username }} ({{ booking.service_request.resident.flat_level }})</td>
+                                <td>{{ booking.service_request.resident.username }} ({{booking.service_request.resident.flat_level }})</td>
                                 <td>{{ booking.service_request.category }}</td>
                                 <td>
                                     <span
@@ -49,8 +49,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <small>{{ booking.service_request.description|truncatewords:5 }}</small>
-                                    <a href="#" class="ms-1 small" data-bs-toggle="modal"
+                                    <a href="#" class="small" data-bs-toggle="modal"
                                         data-bs-target="#detailsModal{{ booking.id }}">View Details</a>
 
                                     <!-- Details Modal -->
@@ -66,7 +65,8 @@
                                                     <div class="mb-3">
                                                         <label
                                                             class="fw-bold d-block small text-muted text-uppercase">Resident</label>
-                                                        <span>{{ booking.service_request.resident.username }} ({{ booking.service_request.resident.flat_level }})</span>
+                                                        <span>{{ booking.service_request.resident.username }} ({{
+                                                            booking.service_request.resident.flat_level }})</span>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label
@@ -186,7 +186,8 @@
                             <span class="badge bg-success">{{ job.feedback.rating }} ★</span>
                         </div>
                         <p class="mb-1 small">"{{ job.feedback.comment|default:"No comment provided." }}"</p>
-                        <small class="text-muted">- {{ job.service_request.resident.username }}, {{ job.service_request.updated_at|date:"d M Y" }}</small>
+                        <small class="text-muted">- {{ job.service_request.resident.username }}, {{
+                            job.service_request.updated_at|date:"d M Y" }}</small>
                     </div>
                     {% endif %}
                     {% empty %}
