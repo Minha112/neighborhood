@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Services - Admin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-5">
+        <div class="card p-4 shadow-sm">
+            <h5>Add New Service Type</h5>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create">
+                <div class="mb-3">
+                    <label class="form-label">Service Name</label>
+                    <input type="text" name="name" class="form-control" placeholder="e.g., Plumbing, Electrical..."
+                        required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description (Optional)</label>
+                    <textarea name="description" class="form-control" rows="2"
+                        placeholder="Brief description of this service"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Add Service
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Service Types</h5>
+                <span class="badge bg-primary">{{ services.count }} services</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Service Name</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in services %}
+                        <tr>
+                            <td><strong>{{ service.name }}</strong></td>
+                            <td class="text-muted small">{{ service.description|default:"—" }}</td>
+                            <td>
+                                {% if service.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="toggle">
+                                    <input type="hidden" name="service_id" value="{{ service.id }}">
+                                    {% if service.is_active %}
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Deactivate">
+                                        <i class="fas fa-toggle-off"></i> Deactivate
+                                    </button>
+                                    {% else %}
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
+                                        <i class="fas fa-toggle-on"></i> Activate
+                                    </button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                <i class="fas fa-tools fa-2x mb-2 d-block"></i>
+                                No services defined yet. Add your first service type above.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

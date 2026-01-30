@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
-from core.models import FlatLevel, WorkerProfile, SERVICE_CATEGORIES
+from core.models import FlatLevel, WorkerProfile, ServiceType
 
 class ResidentRegistrationForm(UserCreationForm):
     first_name = forms.CharField(max_length=150, required=True, label="Full Name")
@@ -28,7 +28,7 @@ class WorkerRegistrationForm(UserCreationForm):
     first_name = forms.CharField(max_length=150, required=True, label="Full Name")
     email = forms.EmailField(required=True)
     phone_number = forms.CharField(max_length=15, required=True)
-    service_type = forms.ChoiceField(choices=SERVICE_CATEGORIES, required=True)
+    service_type = forms.ModelChoiceField(queryset=ServiceType.objects.filter(is_active=True), required=True, label="Service Specialty")
     bio = forms.CharField(widget=forms.Textarea, required=False)
 
     class Meta(UserCreationForm.Meta):

@@ -17,6 +17,10 @@ class RoleBasedLoginView(LoginView):
                 return self.form_invalid(form)
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        messages.error(self.request, "Invalid username or password.")
+        return super().form_invalid(form)
+
 def dashboard_redirect(request):
     if not request.user.is_authenticated:
         return redirect('login')

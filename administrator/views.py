@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
 from accounts.models import CustomUser
-from core.models import FlatLevel, WorkerProfile, ServiceRequest, Booking, Feedback, SERVICE_CATEGORIES
+from core.models import FlatLevel, WorkerProfile, ServiceRequest, Booking, Feedback, ServiceType
 from django.utils import timezone
 from django.contrib import messages
 from django.db.models import Avg, Count, Q
@@ -219,10 +219,10 @@ def worker_performance(request):
     # Filter by service type if specified
     service_type = request.GET.get('service_type')
     if service_type:
-        worker_stats = [w for w in worker_stats if w['profile'].service_type == service_type]
+        worker_stats = [w for w in worker_stats if w['profile'].service_type.name == service_type]
     
-    # Get all service types from choices (extract just the type names)
-    service_types = [choice[0] for choice in SERVICE_CATEGORIES]
+    # Get all service types from database
+    service_types = ServiceType.objects.filter(is_active=True).values_list('name', flat=True)
     
     context = {
         'worker_stats': worker_stats,
@@ -230,3 +230,29 @@ def worker_performance(request):
         'selected_service_type': service_type,
     }
     return render(request, 'administrator/worker_performance.html', context)
+
+@user_passes_test(is_admin)
+def manage_services(request):
+    services = ServiceType.objects.all()
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'create':
+            name = request.POST.get('name')
+            description = request.POST.get('description', '')
+            if name:
+                ServiceType.objects.create(name=name, description=description)
+                messages.success(request, f"Service '{name}' created successfully.")
+        
+        elif action == 'toggle':
+            service_id = request.POST.get('service_id')
+            service = get_object_or_404(ServiceType, id=service_id)
+            service.is_active = not service.is_active
+            service.save()
+            status = "activated" if service.is_active else "deactivated"
+            messages.success(request, f"Service '{service.name}' {status}.")
+        
+        return redirect('manage_services')
+    
+    return render(request, 'administrator/services.html', {'services': services})
+

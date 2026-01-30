@@ -13,8 +13,8 @@
                     <label class="form-label">Service Category</label>
                     <select name="category" class="form-select" required>
                         <option value="">Choose Service...</option>
-                        {% for val, label in categories %}
-                        <option value="{{ val }}">{{ label }}</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -41,7 +41,7 @@
                     <textarea name="requirements" class="form-control" rows="3"
                         placeholder="Any additional needs? (e.g. tools required, preferred time...)"></textarea>
                 </div>
-                
+
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg">Submit Request</button>
                     <a href="{% url 'resident_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
