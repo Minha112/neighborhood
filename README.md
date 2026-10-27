@@ -98,7 +98,8 @@ Open `http://127.0.0.1:8000/` in your browser.
 
 
 <img width="960" height="540" alt="Screenshot 2026-10-27 173735" src="https://github.com/user-attachments/assets/dbed9d5f-c644-4251-9bbe-1a7151e0bd5d" />
-<img width="960" height="540" alt="Screenshot 2026-10-27 174035" src="https://github.com/user-attachments/assets/4b5a7471-99fe-4efa-bbec-47a1aed9dc34" />
+<img width="960" height="540" alt="Screenshot 2026-10-27 174011" src="https://github.com/user-attachments/assets/33ad87a4-9a65-4a7f-a96b-895f757c1a6b" />
+
 <img width="960" height="540" alt="Screenshot 2026-10-27 174035" src="https://github.com/user-attachments/assets/5a92da79-556f-46f3-9592-b21c936434b5" />
 <img width="960" height="540" alt="Screenshot 2026-10-27 174047" src="https://github.com/user-attachments/assets/e1937e0e-e63e-473b-92d6-e08667c19bff" />
 <img width="960" height="540" alt="Screenshot 2026-10-27 174102" src="https://github.com/user-attachments/assets/70050c5a-3904-4f71-aee4-25b309d58db7" />
